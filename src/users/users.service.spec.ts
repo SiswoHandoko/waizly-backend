@@ -56,6 +56,7 @@ describe('UserService', () => {
       const oneUser = {
         firstName: 'firstName #1',
         lastName: 'lastName #1',
+        isActive: true,
       };
       expect(
         service.create({
