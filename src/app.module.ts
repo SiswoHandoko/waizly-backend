@@ -1,9 +1,12 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersModule } from './users/users.module';
 import { User } from './users/models/user.model';
+import { LoggingMiddleware } from './middleware/request-logging.middleware';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ResponseLoggingInterceptor } from './interceptor/response-logging.interceptor';
 
 @Module({
   imports: [
@@ -19,6 +22,17 @@ import { User } from './users/models/user.model';
     UsersModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseLoggingInterceptor, // Implement Interceptor for logging response need
+    }
+  ],
 })
-export class AppModule { }
+
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggingMiddleware).forRoutes('*'); // Implement Middleware for logging request need
+  }
+}
