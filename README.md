@@ -70,6 +70,9 @@ $ npm run test
 $ npm run test:cov
 ```
 
+## Logger
+I use middleware and interceptor implementation for logger 
+
 ## Test Backend Implementation 2
 I put answer for Implementation Test - Backend (2) in folder 
 ```bash
