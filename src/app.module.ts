@@ -5,8 +5,11 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersModule } from './users/users.module';
 import { User } from './users/models/user.model';
 import { LoggingMiddleware } from './middleware/request-logging.middleware';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseLoggingInterceptor } from './interceptor/response-logging.interceptor';
+import { AuthModule } from './auth/auth.module';
+import { Auth } from './auth/models/auth.model';
+import { AuthGuard } from './guard/auth.guard';
 
 @Module({
   imports: [
@@ -17,9 +20,10 @@ import { ResponseLoggingInterceptor } from './interceptor/response-logging.inter
       username: process.env.POSTGRE_USER || 'postgres',
       password: process.env.POSTGRE_PASS || '',
       database: process.env.POSTGRE_DB_NAME || 'waizly',
-      models: [User],
+      models: [User,Auth],
     }),
-    UsersModule
+    UsersModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [
@@ -27,7 +31,11 @@ import { ResponseLoggingInterceptor } from './interceptor/response-logging.inter
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseLoggingInterceptor, // Implement Interceptor for logging response need
-    }
+    },
+    {
+      provide: APP_GUARD, 
+      useClass: AuthGuard, // Implement Guard for Login Validation
+    },
   ],
 })
 

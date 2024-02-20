@@ -1,8 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { Column, CreatedAt, DataType, Model, Table, UpdatedAt } from 'sequelize-typescript';
 
-@Table({ tableName: 'users' })
-export class User extends Model {
+@Table({ tableName: 'auth' })
+export class Auth extends Model {
   @Column({
 		primaryKey: true,
 		type: DataType.INTEGER,
@@ -11,26 +11,27 @@ export class User extends Model {
   id: number;
 
   @Column({
-		type: DataType.STRING,
+		type: DataType.INTEGER,
 		allowNull: false,
-		field: 'first_name'
+		field: 'user_id',
+    unique: true
 	})
-  firstName: string;
+  userId: string;
 
   @Column({
 		type: DataType.STRING,
 		allowNull: false,
-		field: 'last_name'
+		field: 'username',
+    unique: true,
 	})
-  lastName: string;
+  username: string;
 
   @Column({
-		type: DataType.BOOLEAN,
+		type: DataType.STRING,
 		allowNull: false,
-		field: 'is_active',
-    defaultValue: true
+		field: 'password'
 	})
-  isActive: boolean;
+  password: string;
   
   @CreatedAt
   @Column({
@@ -50,12 +51,7 @@ export class User extends Model {
   })
   updatedAt: Date;
 
-  // Custom property to format updatedAt as a string
-  get formattedUpdatedAt(): string {
-    return this.updatedAt.toISOString(); // or use your preferred date formatting method
-  }
-
   static associate(models) {
-    this.hasOne(models.Auth, { foreignKey: 'user_id', as: 'auth' });
+    this.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
   }
 }

@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { User } from './models/user.model';
 import { UsersService } from './users.service';
 import { getModelToken } from '@nestjs/sequelize';
+import { NotFoundException } from '@nestjs/common';
 
 const usersArray = [
   {
@@ -38,6 +39,7 @@ describe('UserService', () => {
             create: jest.fn(() => oneUser),
             remove: jest.fn(),
             destroy: jest.fn(() => oneUser),
+            update: jest.fn(() => oneUser),
           },
         },
       ],
@@ -92,5 +94,30 @@ describe('UserService', () => {
       expect(findSpy).toBeCalledWith({ where: { id: '2' } });
       expect(retVal).toBeUndefined();
     });
+  });
+
+  describe('update()', () => {
+    it('should successfully update a user', async () => {
+      const updatedUser = {
+        id: '1',
+        firstName: 'Updated First Name',
+        lastName: 'Updated Last Name',
+        isActive: true,
+      };
+  
+      service.findOne = jest.fn().mockResolvedValue(oneUser);
+			const mock = jest.spyOn(service, 'update');
+
+      const newOneUser = {
+        firstName: 'firstName #1',
+        lastName: 'lastName #1',
+        isActive: true,
+        update:jest.fn((string, any) => updatedUser)
+      }
+      const result = await newOneUser.update('1', updatedUser);
+  
+      expect(result).toEqual(updatedUser);
+    });
+  
   });
 });
