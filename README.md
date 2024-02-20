@@ -65,5 +65,5 @@ $ npm run test:cov
 ## Test Backend Implementation 2
 I put answer for Implementation Test - Backend (2) in folder 
 ```bash
-implementaion_backend_2/answer.sql
+implementaion_backend_2/answer.txt
 ```
