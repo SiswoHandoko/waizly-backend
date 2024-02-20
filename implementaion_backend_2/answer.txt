@@ -1,0 +1,61 @@
+1. Tampilkan seluruh data dari tabel "employees" (5 Points)
+SELECT * FROM employees;
+
+2. Berapa banyak karyawan yang memiliki posisi pekerjaan (job title) "Manager"? (5 Points)
+SELECT COUNT(*) AS total_managers
+FROM employees
+WHERE job_title = 'Manager';
+
+3. Tampilkan daftar nama dan gaji (salary) dari karyawan yang bekerja di departemen "Sales" atau "Marketing" (10 Points)
+SELECT name, salary
+FROM employees
+WHERE department IN ('Sales', 'Marketing');
+
+4. Hitung rata-rata gaji (salary) dari karyawan yang bergabung (joined) dalam 5 tahun terakhir (berdasarkan kolom "joined_date") (10 Points)
+SELECT AVG(salary) AS average_salary
+FROM employees
+WHERE joined_date >= CURRENT_DATE - INTERVAL '5 years';
+
+5. Tampilkan 5 karyawan dengan total penjualan (sales) tertinggi dari tabel "employees" dan "sales_data" (10 Points)
+SELECT e.name, SUM(sd.sales) AS total_sales
+FROM employees e
+JOIN sales_data sd ON e.employee_id = sd.employee_id
+GROUP BY e.employee_id, e.name
+ORDER BY total_sales DESC
+LIMIT 5;
+
+6. Tampilkan nama, gaji (salary), dan rata-rata gaji (salary) dari semua karyawan yang bekerja di departemen yang memiliki rata-rata gaji lebih tinggi dari gaji rata-rata di semua departemen (15 Points)
+SELECT e.name, e.salary, d.avg_salary
+FROM employees e
+JOIN (
+    SELECT department, AVG(salary) AS avg_salary
+    FROM employees
+    GROUP BY department
+    HAVING AVG(salary) > (SELECT AVG(salary) FROM employees)
+) d ON e.department = d.department;
+
+7. Tampilkan nama dan total penjualan (sales) dari setiap karyawan, bersama dengan peringkat (ranking) masing-masing karyawan berdasarkan total penjualan. Peringkat 1 adalah karyawan dengan total penjualan tertinggi (25 Points)
+SELECT name, total_sales,
+       RANK() OVER (ORDER BY total_sales DESC) AS sales_rank
+FROM (
+    SELECT e.name, SUM(sd.sales) AS total_sales
+    FROM employees e
+    JOIN sales_data sd ON e.employee_id = sd.employee_id
+    GROUP BY e.employee_id, e.name
+) subquery;
+
+
+8. Buat sebuah stored procedure yang menerima nama departemen sebagai input, dan mengembalikan daftar karyawan dalam departemen tersebut bersama dengan total gaji (salary) yang mereka terima (20 Points)
+CREATE OR REPLACE FUNCTION get_department_employees(department_name VARCHAR)
+RETURNS TABLE (employee_name VARCHAR, total_salary DECIMAL) AS
+$$
+BEGIN
+    RETURN QUERY
+    SELECT e.name AS employee_name, SUM(e.salary) AS total_salary
+    FROM employees e
+    WHERE e.department = department_name
+    GROUP BY e.name;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT * FROM get_department_employees('Sales');
